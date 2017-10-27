@@ -8,9 +8,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.JTextArea;
 
+import blackjack.message.ChatMessage;
 import blackjack.message.Message;
 import blackjack.message.MessageFactory;
 import blackjack.message.StatusMessage;
+import blackjack.message.Message.MessageType;
 
 public class TheClient extends Thread {
 	Socket clientSocket;
@@ -45,8 +47,13 @@ public class TheClient extends Thread {
 			while (true) {
 
 				try {
-				String message =((Message)dataIn.readObject()).toString();
+				Message message =((Message)dataIn.readObject());
 				theChatWindow.append( message + "\n");
+				
+				if(MessageType.CHAT.equals(message.getType())) {
+					theChatWindow.append(((ChatMessage)message).getText());
+				}
+				
 				}catch (IOException | ClassNotFoundException e) {
 					//e.printStackTrace();
 					//This line is throwing tons of errors due to no username.
