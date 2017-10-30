@@ -9,9 +9,9 @@ import java.net.UnknownHostException;
 import javax.swing.JTextArea;
 
 import blackjack.message.ChatMessage;
+import blackjack.message.LoginMessage;
 import blackjack.message.Message;
 import blackjack.message.MessageFactory;
-import blackjack.message.StatusMessage;
 import blackjack.message.Message.MessageType;
 
 public class TheClient extends Thread {
@@ -47,30 +47,24 @@ public class TheClient extends Thread {
 			while (true) {
 
 				try {
-				Message message =((Message)dataIn.readObject());
-				theChatWindow.append( message + "\n");
-				
-				if(MessageType.CHAT.equals(message.getType())) {
-					theChatWindow.append(((ChatMessage)message).getText());
-				}
+				translateMessage(((Message)dataIn.readObject()));
 				
 				}catch (IOException | ClassNotFoundException e) {
-					//e.printStackTrace();
+					e.printStackTrace();
 					//This line is throwing tons of errors due to no username.
 				}
 
 			}
 			
 
-		} catch (UnknownHostException e) {
+		} catch (IOException e ) {
 			//If theres an issue I can't do much with it here. There is a connection issue and will likely boot client.
 			e.printStackTrace();
-		} catch (IOException e) {
-			//If theres an issue I can't do much with it here. There is a connection issue and will likely boot client.
-			e.printStackTrace();
-		}
+		} 
 
 	}
+
+
 
 	public void sendNewObject(Message theResponse) throws IOException {
 		
@@ -83,6 +77,22 @@ public class TheClient extends Thread {
 		}
 		dataOut.flush();
 
+	}
+	private void translateMessage(Message message) {
+		String response = "NOTHING";
+		if (message.getType().equals(MessageType.LOGIN)) {
+			response = ((LoginMessage) message).getUsername();
+		}
+
+		else if (message.getType().equals(MessageType.ACK)) {
+			response = "You've been acknowledged.";
+		}
+		else if(message.getType().equals(MessageType.DENY)){
+			response = "You've been denied.";
+		}
+		
+		
+		theChatWindow.append( response + "\n");
 	}
 
 }

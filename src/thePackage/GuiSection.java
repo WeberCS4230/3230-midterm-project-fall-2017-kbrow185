@@ -10,24 +10,21 @@ import javax.swing.text.DefaultCaret;
 
 import blackjack.Server;
 import blackjack.message.LoginMessage;
-import blackjack.message.Message;
 import blackjack.message.MessageFactory;
 
 public class GuiSection extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	String ipAddress ="ec2-54-91-0-253.compute-1.amazonaws.com";
+	//String ipAddress ="ec2-54-91-0-253.compute-1.amazonaws.com";
 	JTextArea chatWindow;
 	JTextArea userInputTextBox;
 	TheClient client;
-	Server theServer;
-	boolean nameAdd;
+	boolean login;
 	String userName;
-	Message message;
 
 	public GuiSection() {
-		nameAdd = false;
+		login = false;
 		userName = "No Name";
 
 		Box theBox = Box.createVerticalBox();
@@ -67,13 +64,13 @@ public class GuiSection extends JFrame {
 	}
 
 	public void startConnection() {
-
+		String ipAddress = "localhost";
+		int portID = 8080;	
+		
 		try {
-			Socket s = new Socket(ipAddress, 8989);
-			s.close();
+			new Server(portID);
+			client = new TheClient(ipAddress,portID,chatWindow);
 			chatWindow.append("Connection Successful");
-			client = new TheClient(ipAddress,8989,chatWindow);
-			return;
 		} catch (IOException e) {
 			//An exception task isnt really needed here. If the test fails it will just return false.
 			chatWindow.append("Connection Unsuccessful");
@@ -87,7 +84,9 @@ public class GuiSection extends JFrame {
 	}
 
 	public void sendToServer(String input) {
+		//if(!login) {
 		LoginMessage message =MessageFactory.getLoginMessage(input);
+	//	}
 
 			try {
 				client.sendNewObject(message);
