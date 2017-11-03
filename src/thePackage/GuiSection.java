@@ -30,17 +30,17 @@ public class GuiSection extends JFrame {
 		Box theBox = Box.createVerticalBox();
 		chatWindow = new JTextArea(40, 10);
 		chatWindow.setEditable(false);
+		DefaultCaret caret = (DefaultCaret) chatWindow.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.OUT_BOTTOM);
 		JScrollPane theScroller = new JScrollPane(chatWindow);
 		theBox.add(theScroller);
+
 
 		theBox.add(new JLabel("User Input Below"));
 		userInputTextBox = new JTextArea(2, 10);
 		theBox.add(userInputTextBox);
-
 		addButtons(theBox);
 
-		DefaultCaret caret = (DefaultCaret) chatWindow.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.OUT_BOTTOM);
 
 		this.add(theBox);
 		this.setTitle("BlackJack");
