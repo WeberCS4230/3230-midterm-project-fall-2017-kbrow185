@@ -41,7 +41,7 @@ public class TheClient extends Thread {
 			clientSocket = new Socket(serverLocation, thePort);
 			dataIn = new ObjectInputStream(clientSocket.getInputStream());
 			dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
-			dataOut.writeObject(MessageFactory.getLoginMessage("Kenyon Rules"));
+			dataOut.writeObject(MessageFactory.getLoginMessage("Mr. Cool"));
 			dataOut.flush();
 			theChatWindow.append("Connecting to:  " + clientSocket.getRemoteSocketAddress() + "\n");
 
@@ -54,13 +54,14 @@ public class TheClient extends Thread {
 				} catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
 					//Will be booted from server if theres an issue. No fix is required here.
+					//The stack trace recieves valuable information from the server as to what went wrong.
 				}
 
 			}
 
 		} catch (IOException e) {
-			// If theres an issue I can't do much with it here. There is a connection issue
-			// and will likely boot client.
+			// If theres an issue I can't do much with it here. There is a connection issue and will likely kick the client.
+			//The stack trace recieves valuable information from the server as to what went wrong.
 			e.printStackTrace();
 		}
 
@@ -76,15 +77,16 @@ public class TheClient extends Thread {
 
 	private void translateMessage(Message message) {
 		String response = "UNKNOWN";
-		if (message.getType().equals(MessageType.LOGIN)) {
-			response = ((LoginMessage) message).getUsername();
+		try {
+		if (MessageType.LOGIN.equals(message.getType())) {
+			response = "Player Joined: "+((LoginMessage) message).getUsername();
 		}
-		else if (message.getType().equals(MessageType.ACK)) {
+		else if (MessageType.ACK.equals(message.getType())) {
 			response = "You've been acknowledged.";
-		} else if (message.getType().equals(MessageType.DENY)) {
+		} else if (MessageType.DENY.equals(message.getType())) {
 			response = "You've been denied.";
-		} else if (MessageType.CHAT.equals(message.getType())) {
-			response = ((ChatMessage) message).getUsername().toString() + ": " +((ChatMessage) message).getText();
+		}else if (MessageType.CHAT.equals(message.getType())) {
+			response = "Chat: " +((ChatMessage) message).getUsername().toString() + ": " +((ChatMessage) message).getText();
 		} else if (MessageType.GAME_STATE.equals(message.getType())) {
 			response = "Server Game State is: " + ((GameStateMessage) message).getRequestedState().toString();
 		} else if (MessageType.GAME_ACTION.equals(message.getType())) {
@@ -94,9 +96,11 @@ public class TheClient extends Thread {
 			Card theCard = ((CardMessage)message).getCard();
 			response = "card value :" + theCard.getValue().toString() + " Suite:" + theCard.getSuite().toString();
 		}
-
-		theChatWindow.append(response + "\n");
-
+		}catch(NullPointerException e) {
+			response = "A null message. (Probably Card!)";
+			//Not much else I can do. It's the servers fault! 
+		}
+		theChatWindow.append("Incoming: "+response + "\n");
 	}
 
 }

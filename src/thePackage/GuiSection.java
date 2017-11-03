@@ -6,10 +6,6 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
-<<<<<<< HEAD
-=======
-import blackjack.Server;
->>>>>>> HomeWork
 import blackjack.message.ChatMessage;
 import blackjack.message.MessageFactory;
 
@@ -75,7 +71,7 @@ public class GuiSection extends JFrame {
 		joinGameButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sendActionToServer(ActionMessages.HIT);
+				sendActionToServer(ActionMessages.JOIN);
 			}
 		});
 		JButton startGameButton = new JButton();
@@ -103,7 +99,6 @@ public class GuiSection extends JFrame {
 		theBox.add(sendHitButton);
 		theBox.add(sendStayButton);
 		theBox.add(startGameButton);
-<<<<<<< HEAD
 
 	}
 
@@ -111,11 +106,10 @@ public class GuiSection extends JFrame {
 	// messages.
 	// If the MidTermMain owned the client, there would be dual ownership to pass back and forth the chatbox.
 	// The other option would be to have a 'listener' thread to update, but due to my previous assignment and current knowledge, 
-	//that isn't hte best idea for the midterm.
+	//that isn't the best idea for the midterm.
 	public void startConnection(String ipAddress, int portID) {
+		chatWindow.append("Attempting Connection... \n");
 		client = new TheClient(ipAddress, portID, chatWindow);
-		chatWindow.append("Connection Successful \n");
-
 	}
 
 	private void sendChatToServer(String sentence) {
@@ -130,40 +124,6 @@ public class GuiSection extends JFrame {
 
 	}
 
-=======
-
-	}
-
-	// The GUI owns the client because the client requires the chatbox to return
-	// messages.
-	// If the MidTermMain owned the client, there would be dual ownership to pass
-	// back and forth the chatbox.
-	public void startConnection(String ipAddress, int portID) {
-		try {
-			new Server(portID);
-			client = new TheClient(ipAddress, portID, chatWindow);
-			chatWindow.append("Connection Successful \n");
-		} catch (IOException e) {
-			// An exception task isnt really needed here. If the test fails it will just
-			// return false.
-			chatWindow.append("Connection Unsuccessful \n");
-		}
-
-	}
-
-	private void sendChatToServer(String sentence) {
-
-		ChatMessage message = MessageFactory.getChatMessage(sentence);
-		try {
-			client.sendNewObject(message);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
->>>>>>> HomeWork
 	private void sendActionToServer(ActionMessages am) {
 
 		try {
