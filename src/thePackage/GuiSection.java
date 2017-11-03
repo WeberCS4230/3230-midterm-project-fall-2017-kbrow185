@@ -104,9 +104,11 @@ public class GuiSection extends JFrame {
 
 	// The GUI owns the client because the client requires the chatbox to return
 	// messages.
-	// If the MidTermMain owned the client, there would be dual ownership to pass back and forth the chatbox.
-	// The other option would be to have a 'listener' thread to update, but due to my previous assignment and current knowledge, 
-	//that isn't the best idea for the midterm.
+	// If the MidTermMain owned the client, there would be dual ownership to pass
+	// back and forth the chatbox.
+	// The other option would be to have a 'listener' thread to update, but due to
+	// my previous assignment and current knowledge,
+	// that isn't the best idea for the midterm.
 	public void startConnection(String ipAddress, int portID) {
 		chatWindow.append("Attempting Connection... \n");
 		client = new TheClient(ipAddress, portID, chatWindow);

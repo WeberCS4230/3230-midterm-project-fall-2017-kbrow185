@@ -53,15 +53,18 @@ public class TheClient extends Thread {
 
 				} catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
-					//Will be booted from server if theres an issue. No fix is required here.
-					//The stack trace recieves valuable information from the server as to what went wrong.
+					// Will be booted from server if theres an issue. No fix is required here.
+					// The stack trace recieves valuable information from the server as to what went
+					// wrong.
 				}
 
 			}
 
 		} catch (IOException e) {
-			// If theres an issue I can't do much with it here. There is a connection issue and will likely kick the client.
-			//The stack trace recieves valuable information from the server as to what went wrong.
+			// If theres an issue I can't do much with it here. There is a connection issue
+			// and will likely kick the client.
+			// The stack trace recieves valuable information from the server as to what went
+			// wrong.
 			e.printStackTrace();
 		}
 
@@ -78,29 +81,28 @@ public class TheClient extends Thread {
 	private void translateMessage(Message message) {
 		String response = "UNKNOWN";
 		try {
-		if (MessageType.LOGIN.equals(message.getType())) {
-			response = "Player Joined: "+((LoginMessage) message).getUsername();
-		}
-		else if (MessageType.ACK.equals(message.getType())) {
-			response = "You've been acknowledged.";
-		} else if (MessageType.DENY.equals(message.getType())) {
-			response = "You've been denied.";
-		}else if (MessageType.CHAT.equals(message.getType())) {
-			response = "Chat: " +((ChatMessage) message).getUsername().toString() + ": " +((ChatMessage) message).getText();
-		} else if (MessageType.GAME_STATE.equals(message.getType())) {
-			response = "Server Game State is: " + ((GameStateMessage) message).getRequestedState().toString();
-		} else if (MessageType.GAME_ACTION.equals(message.getType())) {
-			response = "Server game action is: " + ((GameActionMessage) message).getAction().toString();
-		}
-		else if(MessageType.CARD.equals(message.getType())){
-			Card theCard = ((CardMessage)message).getCard();
-			response = "card value :" + theCard.getValue().toString() + " Suite:" + theCard.getSuite().toString();
-		}
-		}catch(NullPointerException e) {
+			if (MessageType.LOGIN.equals(message.getType())) {
+				response = "Player Joined: " + ((LoginMessage) message).getUsername();
+			} else if (MessageType.ACK.equals(message.getType())) {
+				response = "You've been acknowledged.";
+			} else if (MessageType.DENY.equals(message.getType())) {
+				response = "You've been denied.";
+			} else if (MessageType.CHAT.equals(message.getType())) {
+				response = "Chat: " + ((ChatMessage) message).getUsername().toString() + ": "
+						+ ((ChatMessage) message).getText();
+			} else if (MessageType.GAME_STATE.equals(message.getType())) {
+				response = "Server Game State is: " + ((GameStateMessage) message).getRequestedState().toString();
+			} else if (MessageType.GAME_ACTION.equals(message.getType())) {
+				response = "Server game action is: " + ((GameActionMessage) message).getAction().toString();
+			} else if (MessageType.CARD.equals(message.getType())) {
+				Card theCard = ((CardMessage) message).getCard();
+				response = "card value :" + theCard.getValue().toString() + " Suite:" + theCard.getSuite().toString();
+			}
+		} catch (NullPointerException e) {
 			response = "A null message. (Probably Card!)";
-			//Not much else I can do. It's the servers fault! 
+			// Not much else I can do. It's the servers fault!
 		}
-		theChatWindow.append("Incoming: "+response + "\n");
+		theChatWindow.append("Incoming: " + response + "\n");
 	}
 
 }
