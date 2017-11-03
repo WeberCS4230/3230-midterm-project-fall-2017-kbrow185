@@ -1,33 +1,30 @@
 package thePackage;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.net.Socket;
-
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
-
-import blackjack.Server;
-import blackjack.message.LoginMessage;
-import blackjack.message.Message;
+import blackjack.message.ChatMessage;
 import blackjack.message.MessageFactory;
 
 public class GuiSection extends JFrame {
 
+	public static enum ActionMessages {
+		HIT, STAY, START, JOIN
+	};
+
 	private static final long serialVersionUID = 1L;
 
-	String ipAddress ="ec2-54-91-0-253.compute-1.amazonaws.com";
 	JTextArea chatWindow;
 	JTextArea userInputTextBox;
 	TheClient client;
-	Server theServer;
-	boolean nameAdd;
+	boolean login;
 	String userName;
-	Message message;
 
 	public GuiSection() {
-		nameAdd = false;
+		login = false;
 		userName = "No Name";
 
 		Box theBox = Box.createVerticalBox();
@@ -40,63 +37,120 @@ public class GuiSection extends JFrame {
 		userInputTextBox = new JTextArea(2, 10);
 		theBox.add(userInputTextBox);
 
+		addButtons(theBox);
+
+		DefaultCaret caret = (DefaultCaret) chatWindow.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.OUT_BOTTOM);
+
+		this.add(theBox);
+		this.setTitle("BlackJack");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(500, 900);
+		this.setVisible(true);
+	}
+
+	private void addButtons(Box theBox) {
+		JButton sendHitButton = new JButton();
+		sendHitButton.setText("HIT");
+		sendHitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendActionToServer(ActionMessages.HIT);
+			}
+		});
+		JButton sendStayButton = new JButton();
+		sendStayButton.setText("STAY");
+		sendStayButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendActionToServer(ActionMessages.STAY);
+			}
+		});
+		JButton joinGameButton = new JButton();
+		joinGameButton.setText("Join Game");
+		joinGameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendActionToServer(ActionMessages.HIT);
+			}
+		});
+		JButton startGameButton = new JButton();
+		startGameButton.setText("Start Game");
+		startGameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendActionToServer(ActionMessages.START);
+			}
+
+		});
 		JButton addChatButton = new JButton();
-		addChatButton.setText("Submit");
-		addChatButton.setAlignmentX(CENTER_ALIGNMENT);
+		addChatButton.setText("Submit Chat");
+		addChatButton.setAlignmentX(LEFT_ALIGNMENT);
 		addChatButton.setMnemonic(KeyEvent.VK_ENTER);
 		addChatButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sendToServer(userInputTextBox.getText());
+				sendChatToServer(userInputTextBox.getText());
 				userInputTextBox.setText("");
 			}
 		});
-
 		theBox.add(addChatButton);
-		
-
-		DefaultCaret caret = (DefaultCaret) chatWindow.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.OUT_BOTTOM);
-		
-		this.add(theBox);
-		this.setTitle("Chat Window");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(400, 800);
-		this.setVisible(true);
+		theBox.add(joinGameButton);
+		theBox.add(sendHitButton);
+		theBox.add(sendStayButton);
+		theBox.add(startGameButton);
 
 	}
 
-	public void startConnection() {
+	// The GUI owns the client because the client requires the chatbox to return
+	// messages.
+	// If the MidTermMain owned the client, there would be dual ownership to pass back and forth the chatbox.
+	// The other option would be to have a 'listener' thread to update, but due to my previous assignment and current knowledge, 
+	//that isn't hte best idea for the midterm.
+	public void startConnection(String ipAddress, int portID) {
+		client = new TheClient(ipAddress, portID, chatWindow);
+		chatWindow.append("Connection Successful \n");
+
+	}
+
+	private void sendChatToServer(String sentence) {
+
+		ChatMessage message = MessageFactory.getChatMessage(sentence);
+		try {
+			client.sendNewObject(message);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private void sendActionToServer(ActionMessages am) {
 
 		try {
-			Socket s = new Socket(ipAddress, 8989);
-			s.close();
-			chatWindow.append("Connection Successful");
-			client = new TheClient(ipAddress,8989,chatWindow);
-			return;
-		} catch (IOException e) {
-			//An exception task isnt really needed here. If the test fails it will just return false.
-			chatWindow.append("Connection Unsuccessful");
-		}
-		
-	}
 
-
-	public void defaultAddToChat(String username, String sentence) {
-		chatWindow.append(username + ":\t" + sentence + "\n");
-	}
-
-	public void sendToServer(String input) {
-		LoginMessage message =MessageFactory.getLoginMessage(input);
-
-			try {
-				client.sendNewObject(message);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			switch (am) {
+			case HIT: {
+				client.sendNewObject(MessageFactory.getHitMessage());
+				break;
 			}
-
-
+			case STAY: {
+				client.sendNewObject(MessageFactory.getStayMessage());
+				break;
+			}
+			case JOIN: {
+				client.sendNewObject(MessageFactory.getJoinMessage());
+				break;
+			}
+			case START: {
+				client.sendNewObject(MessageFactory.getStartMessage());
+				break;
+			}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
